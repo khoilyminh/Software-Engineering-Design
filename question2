@@ -1,0 +1,112 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <iomanip>
+
+class Student {
+private:
+    std::string name;
+    int scores[3];
+
+public:
+    // Constructor
+    Student() : name(""), scores{0, 0, 0} {}
+
+    // Input data
+    void inputData() {
+        std::cout << "Enter name: ";
+        std::getline(std::cin, name);
+        std::cout << "Enter 3 scores: ";
+        for (int &score : scores) {
+            std::cin >> score;
+        }
+        std::cin.ignore(); // Clear the newline character
+    }
+
+    // Show information
+    void showInfo() const {
+        std::cout << "Name: " << name << ", Scores: ";
+        for (int score : scores) {
+            std::cout << score << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Calculate average score
+    double averageScore() const {
+        return (scores[0] + scores[1] + scores[2]) / 3.0;
+    }
+
+    // Overload >> operator
+    friend std::istream &operator>>(std::istream &is, Student &student) {
+        std::cout << "Enter name: ";
+        is >> student.name;
+        std::cout << "Enter 3 scores: ";
+        for (int &score : student.scores) {
+            is >> score;
+        }
+        return is;
+    }
+
+    // Overload << operator
+    friend std::ostream &operator<<(std::ostream &os, const Student &student) {
+        os << "Name: " << student.name << ", Scores: ";
+        for (int score : student.scores) {
+            os << score << " ";
+        }
+        return os;
+    }
+
+    // Overload > operator
+    bool operator>(const Student &other) const {
+        return this->averageScore() > other.averageScore();
+    }
+
+    // Overload + operator
+    friend Student operator+(int n, const Student &student) {
+        Student result = student;
+        for (int &score : result.scores) {
+            score += n;
+        }
+        return result;
+    }
+};
+
+int main() {
+    // Testing part (a) and (b)
+    Student s1, s2;
+    std::cin >> s1;
+    std::cin >> s2;
+
+    std::cout << s1 << std::endl;
+    std::cout << s2 << std::endl;
+
+    if (s1 > s2) {
+        std::cout << s1.name << " has a higher average score.\n";
+    } else {
+        std::cout << s2.name << " has a higher average score.\n";
+    }
+
+    Student s3 = 5 + s1;
+    std::cout << "Scores after adding 5: " << s3 << std::endl;
+
+    // Part (c): Read from a file
+    Student students[10];
+    std::ifstream file("data.txt");
+    if (file.is_open()) {
+        for (int i = 0; i < 10; ++i) {
+            file >> students[i];
+        }
+        file.close();
+    }
+
+    Student topStudent = students[0];
+    for (int i = 1; i < 10; ++i) {
+        if (students[i] > topStudent) {
+            topStudent = students[i];
+        }
+    }
+    std::cout << "Top student: " << topStudent << std::endl;
+
+    return 0;
+}
