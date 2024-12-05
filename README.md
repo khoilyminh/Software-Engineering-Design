@@ -6,7 +6,7 @@ This repository documents my journey learning C++ programming for the Software E
 
 * **Course Name:** Software Engineering Design
 * **Institution:** RMIT Vietnam
-* **Instructor:** Hou Ling Chong
+* **Instructor:** Dr. Hou Ling Chong
 * **Semester/Year:**  Semester C 2024
 
 ## Repository Contents
