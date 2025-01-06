@@ -1,108 +1,102 @@
 #include <iostream>
 #include <vector>
 #include <string>
+
 using namespace std;
 
 class Meal {
-public:
+private:
     string type;
     double pricePerPerson;
-
+public:
     Meal(string t, double p) : type(t), pricePerPerson(p) {}
+    string getType() const { return type; }
+    double getPricePerPerson() const { return pricePerPerson; }
 };
 
 class Transaction {
-public:
-    int transactionID;
-    string mealType;
+private:
+    int transactionId;
+    Meal meal;
     int numPeople;
     double totalPrice;
-
-    Transaction(int id, string type, int people, double price)
-        : transactionID(id), mealType(type), numPeople(people), totalPrice(price) {}
+public:
+    Transaction(int id, Meal m, int num) : transactionId(id), meal(m), numPeople(num) {
+        totalPrice = numPeople * meal.getPricePerPerson();
+        if (numPeople > 10) totalPrice *= 0.9; // Apply 10% discount for more than 10 people
+    }
+    int getId() const { return transactionId; }
+    void showDetails() const {
+        cout << "Transaction ID: " << transactionId << endl;
+        cout << "Meal Type: " << meal.getType() << ", Number of People: " << numPeople << ", Total Price: " << totalPrice << endl;
+    }
+    string getMealType() const { return meal.getType(); }
+    double getTotalPrice() const { return totalPrice; }
 };
 
 class Restaurant {
 private:
     string name;
-    vector<Meal> meals;
     vector<Transaction> transactions;
-    int transactionCounter;
-
+    static int nextTransactionId;
 public:
-    Restaurant(string n) : name(n), transactionCounter(1) {
-        meals.push_back(Meal("Breakfast", 12.0));
-        meals.push_back(Meal("Lunch", 20.0));
-        meals.push_back(Meal("Tea", 10.0));
+    Restaurant(string n) : name(n) {}
+
+    void makeReservation(string mealType, double pricePerPerson, int numPeople) {
+        Meal meal(mealType, pricePerPerson);
+        Transaction transaction(nextTransactionId++, meal, numPeople);
+        transactions.push_back(transaction);
+        cout << "Transaction ID " << transaction.getId() << " has been successfully added. Total Price: $" << transaction.getTotalPrice() << endl;
     }
 
-    void makeReservation(string mealType, int numPeople) {
-        double price = 0;
-        for (const Meal& meal : meals) {
-            if (meal.type == mealType) {
-                price = meal.pricePerPerson * numPeople;
-                if (numPeople > 10) price *= 0.9;  // Apply discount
-                break;
-            }
-        }
-
-        transactions.push_back(Transaction(transactionCounter++, mealType, numPeople, price));
-        cout << "Transaction ID " << transactions.back().transactionID
-             << " has been successfully added. Total Price: $" << price << endl;
-    }
-
-    void showTransaction(int transactionID) {
-        for (const Transaction& t : transactions) {
-            if (t.transactionID == transactionID) {
-                cout << "Transaction ID: " << t.transactionID << endl;
-                cout << "Meal Type: " << t.mealType
-                     << ", Number of People: " << t.numPeople
-                     << ", Total Price: $" << t.totalPrice << endl;
+    void showTransaction(int id) const {
+        for (const auto& transaction : transactions) {
+            if (transaction.getId() == id) {
+                transaction.showDetails();
                 return;
             }
         }
-        cout << "Transaction not found!" << endl;
+        cout << "Transaction ID not found." << endl;
     }
 
-    void showStats() {
+    void showStats() const {
         int breakfastCount = 0, lunchCount = 0, teaCount = 0;
         double breakfastRevenue = 0, lunchRevenue = 0, teaRevenue = 0;
 
-        for (const Transaction& t : transactions) {
-            if (t.mealType == "Breakfast") {
-                breakfastCount += t.numPeople;
-                breakfastRevenue += t.totalPrice;
-            } else if (t.mealType == "Lunch") {
-                lunchCount += t.numPeople;
-                lunchRevenue += t.totalPrice;
-            } else if (t.mealType == "Tea") {
-                teaCount += t.numPeople;
-                teaRevenue += t.totalPrice;
+        for (const auto& transaction : transactions) {
+            if (transaction.getMealType() == "Breakfast") {
+                breakfastCount++;
+                breakfastRevenue += transaction.getTotalPrice();
+            } else if (transaction.getMealType() == "Lunch") {
+                lunchCount++;
+                lunchRevenue += transaction.getTotalPrice();
+            } else if (transaction.getMealType() == "Tea") {
+                teaCount++;
+                teaRevenue += transaction.getTotalPrice();
             }
         }
 
-        cout << "\nRestaurant Statistics" << endl;
-        cout << "Breakfast Reservations: " << breakfastCount
-             << ", Total Revenue: $" << breakfastRevenue << endl;
-        cout << "Lunch Reservations: " << lunchCount
-             << ", Total Revenue: $" << lunchRevenue << endl;
-        cout << "Tea Reservations: " << teaCount
-             << ", Total Revenue: $" << teaRevenue << endl;
+        cout << "Restaurant Statistics" << endl;
+        cout << "Breakfast Reservations: " << breakfastCount << ", Total Revenue: $" << breakfastRevenue << endl;
+        cout << "Lunch Reservations: " << lunchCount << ", Total Revenue: $" << lunchRevenue << endl;
+        cout << "Tea Reservations: " << teaCount << ", Total Revenue: $" << teaRevenue << endl;
     }
 };
 
+int Restaurant::nextTransactionId = 1;
+
 int main() {
-    Restaurant restaurant("RMIT Restaurant");
-
-    cout << "Welcome to " << restaurant.getName() << endl;
-    restaurant.makeReservation("Lunch", 2);
-    restaurant.makeReservation("Tea", 12);
-    restaurant.makeReservation("Lunch", 3);
-
-    restaurant.showTransaction(1);
-    restaurant.showTransaction(2);
-
-    restaurant.showStats();
-
+    Restaurant rmitRestaurant("RMIT Restaurant");
+    
+    rmitRestaurant.makeReservation("Lunch", 20.00, 2);
+    rmitRestaurant.makeReservation("Tea", 10.00, 12);
+    rmitRestaurant.makeReservation("Lunch", 20.00, 3);
+    
+    rmitRestaurant.showTransaction(1);
+    rmitRestaurant.showTransaction(2);
+    rmitRestaurant.showTransaction(3);
+    
+    rmitRestaurant.showStats();
+    
     return 0;
 }
