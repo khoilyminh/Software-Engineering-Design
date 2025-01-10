@@ -129,8 +129,11 @@ int main() {
     shop.addCustomer("John Doe");
     shop.addCustomer("Jane Smith");
 
-    // Purchases
-    unordered_map<string, int> purchases = {{"Apple", 10}, {"Milk", 5}};
+    // Purchases 
+    unordered_map<string, int> purchases;
+    purchases.insert(make_pair("Apple", 10)); 
+    purchases.insert(make_pair("Milk", 5)); 
+
     shop.printBill("John Doe", purchases);
 
     // Process a return
